@@ -1,0 +1,621 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "\n",
+    "_You are currently looking at **version 1.1** of this notebook. To download notebooks and datafiles, as well as get help on Jupyter notebooks in the Coursera platform, visit the [Jupyter Notebook FAQ](https://www.coursera.org/learn/python-machine-learning/resources/bANLa) course resource._\n",
+    "\n",
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Assignment 3 - Evaluation\n",
+    "\n",
+    "In this assignment you will train several models and evaluate how effectively they predict instances of fraud using data based on [this dataset from Kaggle](https://www.kaggle.com/dalpozz/creditcardfraud).\n",
+    " \n",
+    "Each row in `fraud_data.csv` corresponds to a credit card transaction. Features include confidential variables `V1` through `V28` as well as `Amount` which is the amount of the transaction. \n",
+    " \n",
+    "The target is stored in the `class` column, where a value of 1 corresponds to an instance of fraud and 0 corresponds to an instance of not fraud."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 1\n",
+    "Import the data from `fraud_data.csv`. What percentage of the observations in the dataset are instances of fraud?\n",
+    "\n",
+    "*This function should return a float between 0 and 1.* "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def answer_one(df):\n",
+    "    \n",
+    "    # Your code here\n",
+    "    \n",
+    "    return df.iloc[:,-1].mean()# Return your answer\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "# Use X_train, X_test, y_train, y_test for all of the following questions\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "\n",
+    "df = pd.read_csv('fraud_data.csv')\n",
+    "\n",
+    "X = df.iloc[:,:-1]\n",
+    "y = df.iloc[:,-1]\n",
+    "\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>V1</th>\n",
+       "      <th>V2</th>\n",
+       "      <th>V3</th>\n",
+       "      <th>V4</th>\n",
+       "      <th>V5</th>\n",
+       "      <th>V6</th>\n",
+       "      <th>V7</th>\n",
+       "      <th>V8</th>\n",
+       "      <th>V9</th>\n",
+       "      <th>V10</th>\n",
+       "      <th>...</th>\n",
+       "      <th>V21</th>\n",
+       "      <th>V22</th>\n",
+       "      <th>V23</th>\n",
+       "      <th>V24</th>\n",
+       "      <th>V25</th>\n",
+       "      <th>V26</th>\n",
+       "      <th>V27</th>\n",
+       "      <th>V28</th>\n",
+       "      <th>Amount</th>\n",
+       "      <th>Class</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1.176563</td>\n",
+       "      <td>0.323798</td>\n",
+       "      <td>0.536927</td>\n",
+       "      <td>1.047002</td>\n",
+       "      <td>-0.368652</td>\n",
+       "      <td>-0.728586</td>\n",
+       "      <td>0.084678</td>\n",
+       "      <td>-0.069246</td>\n",
+       "      <td>-0.266389</td>\n",
+       "      <td>0.155315</td>\n",
+       "      <td>...</td>\n",
+       "      <td>-0.109627</td>\n",
+       "      <td>-0.341365</td>\n",
+       "      <td>0.057845</td>\n",
+       "      <td>0.499180</td>\n",
+       "      <td>0.415211</td>\n",
+       "      <td>-0.581949</td>\n",
+       "      <td>0.015472</td>\n",
+       "      <td>0.018065</td>\n",
+       "      <td>4.67</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0.681109</td>\n",
+       "      <td>-3.934776</td>\n",
+       "      <td>-3.801827</td>\n",
+       "      <td>-1.147468</td>\n",
+       "      <td>-0.735540</td>\n",
+       "      <td>-0.501097</td>\n",
+       "      <td>1.038865</td>\n",
+       "      <td>-0.626979</td>\n",
+       "      <td>-2.274423</td>\n",
+       "      <td>1.527782</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.652202</td>\n",
+       "      <td>0.272684</td>\n",
+       "      <td>-0.982151</td>\n",
+       "      <td>0.165900</td>\n",
+       "      <td>0.360251</td>\n",
+       "      <td>0.195321</td>\n",
+       "      <td>-0.256273</td>\n",
+       "      <td>0.056501</td>\n",
+       "      <td>912.00</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1.140729</td>\n",
+       "      <td>0.453484</td>\n",
+       "      <td>0.247010</td>\n",
+       "      <td>2.383132</td>\n",
+       "      <td>0.343287</td>\n",
+       "      <td>0.432804</td>\n",
+       "      <td>0.093380</td>\n",
+       "      <td>0.173310</td>\n",
+       "      <td>-0.808999</td>\n",
+       "      <td>0.775436</td>\n",
+       "      <td>...</td>\n",
+       "      <td>-0.003802</td>\n",
+       "      <td>0.058556</td>\n",
+       "      <td>-0.121177</td>\n",
+       "      <td>-0.304215</td>\n",
+       "      <td>0.645893</td>\n",
+       "      <td>0.122600</td>\n",
+       "      <td>-0.012115</td>\n",
+       "      <td>-0.005945</td>\n",
+       "      <td>1.00</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>-1.107073</td>\n",
+       "      <td>-3.298902</td>\n",
+       "      <td>-0.184092</td>\n",
+       "      <td>-1.795744</td>\n",
+       "      <td>2.137564</td>\n",
+       "      <td>-1.684992</td>\n",
+       "      <td>-2.015606</td>\n",
+       "      <td>-0.007181</td>\n",
+       "      <td>-0.165760</td>\n",
+       "      <td>0.869659</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.130648</td>\n",
+       "      <td>0.329445</td>\n",
+       "      <td>0.927656</td>\n",
+       "      <td>-0.049560</td>\n",
+       "      <td>-1.892866</td>\n",
+       "      <td>-0.575431</td>\n",
+       "      <td>0.266573</td>\n",
+       "      <td>0.414184</td>\n",
+       "      <td>62.10</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>-0.314818</td>\n",
+       "      <td>0.866839</td>\n",
+       "      <td>-0.124577</td>\n",
+       "      <td>-0.627638</td>\n",
+       "      <td>2.651762</td>\n",
+       "      <td>3.428128</td>\n",
+       "      <td>0.194637</td>\n",
+       "      <td>0.670674</td>\n",
+       "      <td>-0.442658</td>\n",
+       "      <td>0.133499</td>\n",
+       "      <td>...</td>\n",
+       "      <td>-0.312774</td>\n",
+       "      <td>-0.799494</td>\n",
+       "      <td>-0.064488</td>\n",
+       "      <td>0.953062</td>\n",
+       "      <td>-0.429550</td>\n",
+       "      <td>0.158225</td>\n",
+       "      <td>0.076943</td>\n",
+       "      <td>-0.015051</td>\n",
+       "      <td>2.67</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>5 rows × 30 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         V1        V2        V3        V4        V5        V6        V7  \\\n",
+       "0  1.176563  0.323798  0.536927  1.047002 -0.368652 -0.728586  0.084678   \n",
+       "1  0.681109 -3.934776 -3.801827 -1.147468 -0.735540 -0.501097  1.038865   \n",
+       "2  1.140729  0.453484  0.247010  2.383132  0.343287  0.432804  0.093380   \n",
+       "3 -1.107073 -3.298902 -0.184092 -1.795744  2.137564 -1.684992 -2.015606   \n",
+       "4 -0.314818  0.866839 -0.124577 -0.627638  2.651762  3.428128  0.194637   \n",
+       "\n",
+       "         V8        V9       V10  ...         V21       V22       V23  \\\n",
+       "0 -0.069246 -0.266389  0.155315  ...   -0.109627 -0.341365  0.057845   \n",
+       "1 -0.626979 -2.274423  1.527782  ...    0.652202  0.272684 -0.982151   \n",
+       "2  0.173310 -0.808999  0.775436  ...   -0.003802  0.058556 -0.121177   \n",
+       "3 -0.007181 -0.165760  0.869659  ...    0.130648  0.329445  0.927656   \n",
+       "4  0.670674 -0.442658  0.133499  ...   -0.312774 -0.799494 -0.064488   \n",
+       "\n",
+       "        V24       V25       V26       V27       V28  Amount  Class  \n",
+       "0  0.499180  0.415211 -0.581949  0.015472  0.018065    4.67      0  \n",
+       "1  0.165900  0.360251  0.195321 -0.256273  0.056501  912.00      0  \n",
+       "2 -0.304215  0.645893  0.122600 -0.012115 -0.005945    1.00      0  \n",
+       "3 -0.049560 -1.892866 -0.575431  0.266573  0.414184   62.10      0  \n",
+       "4  0.953062 -0.429550  0.158225  0.076943 -0.015051    2.67      0  \n",
+       "\n",
+       "[5 rows x 30 columns]"
+      ]
+     },
+     "execution_count": 37,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.016410823768035772"
+      ]
+     },
+     "execution_count": 38,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "answer_one(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 2\n",
+    "\n",
+    "Using `X_train`, `X_test`, `y_train`, and `y_test` (as defined above), train a dummy classifier that classifies everything as the majority class of the training data. What is the accuracy of this classifier? What is the recall?\n",
+    "\n",
+    "*This function should a return a tuple with two floats, i.e. `(accuracy score, recall score)`.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "def answer_two():\n",
+    "    from sklearn.dummy import DummyClassifier\n",
+    "    from sklearn.metrics import recall_score\n",
+    "    clf=DummyClassifier('most_frequent',random_state=0)\n",
+    "    clf.fit(X_train,y_train)\n",
+    "    acc=clf.score(X_test,y_test)\n",
+    "    recall=recall_score(y_test,clf.predict(X_test),'binary')\n",
+    "    # Your code here\n",
+    "    \n",
+    "    return recall_score()# Return your answer"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 3\n",
+    "\n",
+    "Using X_train, X_test, y_train, y_test (as defined above), train a SVC classifer using the default parameters. What is the accuracy, recall, and precision of this classifier?\n",
+    "\n",
+    "*This function should a return a tuple with three floats, i.e. `(accuracy score, recall score, precision score)`.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "def answer_three():\n",
+    "    from sklearn.metrics import recall_score, precision_score\n",
+    "    from sklearn.svm import SVC\n",
+    "\n",
+    "    # Your code here\n",
+    "    clf=SVC()\n",
+    "    clf.fit(X_train,y_train)\n",
+    "    acc=clf.score(X_test,y_test)\n",
+    "    recall=recall_score(y_test,clf.predict(X_test),'binary')\n",
+    "    precision=precision_score(y_test,clf.predict(X_test),'binary')\n",
+    "    return (acc,recall,precision)# Return your answer"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 4\n",
+    "\n",
+    "Using the SVC classifier with parameters `{'C': 1e9, 'gamma': 1e-07}`, what is the confusion matrix when using a threshold of -220 on the decision function. Use X_test and y_test.\n",
+    "\n",
+    "*This function should return a confusion matrix, a 2x2 numpy array with 4 integers.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def answer_four():\n",
+    "    from sklearn.metrics import confusion_matrix\n",
+    "    from sklearn.svm import SVC\n",
+    "\n",
+    "    # Your code here\n",
+    "    clf=SVC(C=1e9,gamma=1e-07)\n",
+    "    clf.fit(X_train,y_train)\n",
+    "    temp=clf.decision_function(X_test)\n",
+    "    ans=confusion_matrix(y_testmnp.greater(temp,-220),)\n",
+    "    \n",
+    "    return ans# Return your answer"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 5\n",
+    "\n",
+    "Train a logisitic regression classifier with default parameters using X_train and y_train.\n",
+    "\n",
+    "For the logisitic regression classifier, create a precision recall curve and a roc curve using y_test and the probability estimates for X_test (probability it is fraud).\n",
+    "\n",
+    "Looking at the precision recall curve, what is the recall when the precision is `0.75`?\n",
+    "\n",
+    "Looking at the roc curve, what is the true positive rate when the false positive rate is `0.16`?\n",
+    "\n",
+    "*This function should return a tuple with two floats, i.e. `(recall, true positive rate)`.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "def answer_five():\n",
+    "        \n",
+    "    # Your code here\n",
+    "    from sklearn.linear_model import LogisticRegression\n",
+    "    from sklearn.metrics import precision_recall_curve\n",
+    "    from sklearn.metrics import roc_curve\n",
+    "    import matplotlib.pyplot as plt\n",
+    "    %matplotlib inline\n",
+    "    \n",
+    "    clf=LogisticRegression(n_jobs=-1)\n",
+    "    clf.fit(X_train,y_train)\n",
+    "    p,r,_ =precision_recall_curve(y_test,clf.predict_proba(X_test)[:,1],)\n",
+    "    fpr,tpr,_ =roc_curve(y_test,clf.predict_proba(X_test)[:,1],)\n",
+    "    \n",
+    "    plt.plot(fpr,tpr)\n",
+    "    plt.plot(p,r)\n",
+    "    plt.xlabel('fpr')\n",
+    "    plt.ylabel('tpr')\n",
+    "    plt.show()\n",
+    "    return (0.8,0.9)# Return your answer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\nidkpt+wAAAAASUVORK5CYII=\n",
+      "text/plain": [
+       "<matplotlib.figure.Figure at 0x7f0c68299dd8>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "(0.8, 0.9)"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "answer_five()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Question 6\n",
+    "\n",
+    "Perform a grid search over the parameters listed below for a Logisitic Regression classifier, using recall for scoring and the default 3-fold cross validation.\n",
+    "\n",
+    "`'penalty': ['l1', 'l2']`\n",
+    "\n",
+    "`'C':[0.01, 0.1, 1, 10, 100]`\n",
+    "\n",
+    "From `.cv_results_`, create an array of the mean test scores of each parameter combination. i.e.\n",
+    "\n",
+    "|      \t| `l1` \t| `l2` \t|\n",
+    "|:----:\t|----\t|----\t|\n",
+    "| **`0.01`** \t|    ?\t|   ? \t|\n",
+    "| **`0.1`**  \t|    ?\t|   ? \t|\n",
+    "| **`1`**    \t|    ?\t|   ? \t|\n",
+    "| **`10`**   \t|    ?\t|   ? \t|\n",
+    "| **`100`**   \t|    ?\t|   ? \t|\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "*This function should return a 5 by 2 numpy array with 10 floats.* \n",
+    "\n",
+    "*Note: do not return a DataFrame, just the values denoted by '?' above in a numpy array.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def answer_six():    \n",
+    "    from sklearn.model_selection import GridSearchCV\n",
+    "    from sklearn.linear_model import LogisticRegression\n",
+    "\n",
+    "    # Your code here\n",
+    "    params = {'penalty': ['l1', 'l2'],\n",
+    "    'C':[0.01, 0.1, 1, 10, 100]}\n",
+    "    clf = GridSearchCV(LogisticRegression(n_jobs=-1),params,scoring='recall',n_jobs=-1)\n",
+    "    clf.fit(X_train,y_train)\n",
+    "    ans = clf.cv_results_['mean_test_score'].reshape(5,2)\n",
+    "    return ans"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "# Use the following function to help visualize results from the grid search\n",
+    "def GridSearch_Heatmap(scores):\n",
+    "    %matplotlib notebook\n",
+    "    import seaborn as sns\n",
+    "    import matplotlib.pyplot as plt\n",
+    "    plt.figure()\n",
+    "    sns.heatmap(scores.reshape(5,2), xticklabels=['l1','l2'], yticklabels=[0.01, 0.1, 1, 10, 100])\n",
+    "    plt.yticks(rotation=0);\n",
+    "\n",
+    "#GridSearch_Heatmap(answer_six())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "# Use the following function to help visualize results from"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[ 0.66666667,  0.76086957],\n",
+       "       [ 0.80072464,  0.80434783],\n",
+       "       [ 0.8115942 ,  0.8115942 ],\n",
+       "       [ 0.80797101,  0.8115942 ],\n",
+       "       [ 0.80797101,  0.80797101]])"
+      ]
+     },
+     "execution_count": 51,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "answer_six()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "coursera": {
+   "course_slug": "python-machine-learning",
+   "graded_item_id": "5yX9Z",
+   "launcher_item_id": "eqnV3",
+   "part_id": "Msnj0"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.5.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
